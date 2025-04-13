@@ -1,0 +1,231 @@
+:root {
+    --bg-color: #1a1a2e;
+    --text-color: #e6e6e6;
+    --accent-color: #4cc9f0;
+    --card-bg: #16213e;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}
+
+.screen.active {
+    display: flex;
+}
+
+h1 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+}
+
+h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 1.22rem;
+}
+
+.menu-section {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #0f3460;
+    border: none;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.packs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.packs-container label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.btn {
+    background-color: #144e2e;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: bold;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #104227;
+}
+
+.home-btn {
+    background-color: #ececec;
+    color: black;
+    margin-top: 20px;
+}
+
+.home-btn:hover {
+    background-color: #d3d3d3;
+}
+
+.game-header {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+}
+
+.round-counter {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--accent-color);
+}
+
+.prompt-display {
+    font-size: 1.5rem;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.players-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.player-btn {
+    background-color: var(--card-bg);
+    color: black;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+}
+
+.player-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.4;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.player-btn > * {
+    position: relative;
+    z-index: 2;
+}
+
+.player-btn:hover {
+    transform: translateY(-5px);
+}
+
+.player-name {
+    font-weight: bold;
+}
+
+.player-score {
+    font-size: 1.5rem;
+}
+
+.results-container {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    border-radius: 5px;
+    transition: var(--transition);
+}
+
+.result-item.winner {
+    background-color: #0f3460;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.results-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.results-buttons .btn {
+    flex: 1;
+}

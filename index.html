@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💬 QuipMaster</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+</head>
+<body>
+    <div id="header"></div>
+    <div class="container">
+        <!-- Main Menu Screen -->
+        <div id="menu-screen" class="screen active">
+            <h1>QuipMaster</h1>
+            <div class="menu-section">
+                <h3 for="player-count">Number of Players:</h3>
+                <input type="number" id="player-count" min="2" max="8" value="4">
+            </div>
+            <div class="menu-section">
+                <h3 for="round-count">Number of Rounds:</h3>
+                <input type="number" id="round-count" min="1" max="20" value="12">
+            </div>
+            <div class="menu-section">
+                <h3>Prompt Packs:</h3>
+                <div class="packs-container">
+                    <label><input type="checkbox" class="pack-checkbox" data-pack="Base Game" checked> Base Game</label>
+                    <label><input type="checkbox" class="pack-checkbox" data-pack="Game 2" checked> Game 2</label>
+                    <label><input type="checkbox" class="pack-checkbox" data-pack="Game 3" checked> Game 3</label>
+                </div>
+            </div>
+            <button id="start-game" class="btn">Start Game</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="round-counter">Round <span id="current-round">1</span>/<span id="total-rounds">12</span></div>
+                <div class="prompt-display" id="prompt-text"></div>
+            </div>
+            <div class="players-container" id="players-container"></div>
+            <button id="home-button" class="btn home-btn">Home</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <h1>Game Results</h1>
+            <div class="results-container" id="results-container"></div>
+            <div class="results-buttons">
+                <button id="play-again" class="btn">Play Again</button>
+                <button id="go-to-menu" class="btn">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/header.js"></script>
+</body>
+</html>
