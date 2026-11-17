@@ -12,9 +12,9 @@ body.dark{--bg:#1b1336;--surface:#281d4d;--ink:#fff4d6;--soft:#b3a8d6;--dim:#342
 *{margin:0;padding:0;box-sizing:border-box}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 body{font-family:var(--font);color:var(--ink);min-height:100vh;text-align:center;transition:background .3s;
-background:radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--coral) 22%,transparent) 0 90px,transparent 91px),
-radial-gradient(circle at 92% 22%,color-mix(in srgb,var(--yellow) 30%,transparent) 0 130px,transparent 131px),
-radial-gradient(circle at 80% 92%,color-mix(in srgb,var(--mint) 22%,transparent) 0 110px,transparent 111px),var(--bg);background-attachment:fixed}
+background:var(--bg)}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+#bg i{position:absolute;top:0;border-radius:50%;will-change:transform}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;max-width:760px;margin:0 auto}
 .brand{font-weight:900;font-size:22px;display:flex;align-items:center;gap:6px}
 .tools{display:flex;gap:8px;align-items:center}
@@ -65,7 +65,7 @@ details>summary{cursor:pointer;font-weight:800;font-size:14px}
 .pill:disabled{opacity:.35;cursor:not-allowed}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
 .status{min-height:20px;font-weight:800;font-size:14px;color:var(--coral);max-width:420px}.status.info{color:var(--soft);font-weight:600}
-.roomcode{font-size:clamp(30px,10vw,46px);font-weight:900;letter-spacing:.1em;background:var(--ink);color:var(--yellow);border-radius:18px;padding:8px 14px;text-align:center;word-break:break-all}
+.roomcode{font-size:clamp(30px,10vw,46px);font-weight:900;letter-spacing:.1em;background:#251a47;color:#ffc83d;border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);border-radius:18px;padding:8px 14px;text-align:center;word-break:break-all}
 .qr{width:100%;max-width:200px;margin:0 auto;padding:8px;background:#fff;border:3px solid var(--ink);border-radius:14px}
 .qr svg,.qr img,.qr canvas{display:block;width:100%;height:auto}
 .center{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
@@ -92,6 +92,9 @@ body.dark .thumb{transform:translateX(28px);background:var(--violet)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 dialog{margin:auto;max-width:min(92vw,460px);padding:22px;border:4px solid var(--ink);border-radius:28px;background:var(--surface);color:var(--ink);text-align:left;box-shadow:0 8px 0 var(--ink)}
 dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialog ol,dialog ul{margin:8px 0 14px 22px;display:flex;flex-direction:column;gap:6px;font-weight:600}
+.plist{list-style:none;display:flex;flex-direction:column;gap:8px}.prow{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;border:3px solid var(--ink);border-radius:16px;background:var(--bg);font-weight:800}.prow.off{opacity:.5}.ptag{color:var(--soft);font-size:13px}
+body.online .local-only,body.online #start-game{display:none!important}
+.pbtn.view:disabled{opacity:.92;cursor:default}.pbtn.isjudge:disabled{opacity:.5}.pbtn.view:disabled:hover{transform:none;box-shadow:0 6px 0 var(--ink)}
 </style>
 </head>
 <body>
@@ -114,10 +117,10 @@ dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialo
   <div class="card">
     <h2><span class="num">1</span>Who’s playing?</h2>
     <div class="row">
-      <div class="field"><label for="player-count">Players (2–8)</label><div class="stepper"><button type="button" class="step-btn" data-target="player-count" data-dir="-1" aria-label="One fewer player">−</button><input type="number" id="player-count" min="2" max="8" value="4" inputmode="numeric"><button type="button" class="step-btn" data-target="player-count" data-dir="1" aria-label="One more player">+</button></div></div>
+      <div class="field local-only"><label for="player-count">Players (2–8)</label><div class="stepper"><button type="button" class="step-btn" data-target="player-count" data-dir="-1" aria-label="One fewer player">−</button><input type="number" id="player-count" min="2" max="8" value="4" inputmode="numeric"><button type="button" class="step-btn" data-target="player-count" data-dir="1" aria-label="One more player">+</button></div></div>
       <div class="field"><label for="round-count">Rounds (1–50)</label><div class="stepper"><button type="button" class="step-btn" data-target="round-count" data-dir="-1" aria-label="One fewer round">−</button><input type="number" id="round-count" min="1" max="50" value="12" inputmode="numeric"><button type="button" class="step-btn" data-target="round-count" data-dir="1" aria-label="One more round">+</button></div></div>
     </div>
-    <div><b>Seats &amp; names</b><p class="hint">Type each player’s name in seat order (optional). Seat 1 judges round 1, seat 2 judges round 2, and so on around the table.</p><div class="names" id="names"></div></div>
+    <div class="local-only"><b>Seats &amp; names</b><p class="hint">Type each player’s name in seat order (optional). Seat 1 judges round 1, seat 2 judges round 2, and so on around the table.</p><div class="names" id="names"></div></div>
   </div>
 
   <div class="card">
@@ -131,31 +134,38 @@ dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialo
     <h2><span class="num">3</span>How are you playing?</h2>
     <div class="mode" role="radiogroup" aria-label="Play mode">
       <label><input type="radio" name="mode" value="solo" checked>📱 One phone<small>Pass it round the table</small></label>
-      <label><input type="radio" name="mode" value="room">👥 Several phones<small>Everyone sees the same prompt</small></label>
+      <label><input type="radio" name="mode" value="room">🌐 Online<small>Everyone on their own phone</small></label>
     </div>
     <div id="room-panel" class="hidden" style="flex-direction:column;gap:12px">
-      <label for="my-seat" style="font-weight:800;font-size:13px;display:flex;flex-direction:column;gap:4px">Which seat is this phone? (so it knows when you’re the judge)<select id="my-seat"></select></label>
-      <div id="room-entry" style="display:flex;flex-direction:column;gap:8px">
-        <p class="hint">Type any code, or make one. Everyone who uses the same code sees the same prompts in the same order.</p>
-        <form class="row" id="join-form" style="flex-wrap:nowrap">
-          <input type="text" id="join-code" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ROOM CODE" aria-label="Room code" style="text-transform:uppercase;letter-spacing:.08em">
-          <button class="pill" type="submit">Enter</button>
-        </form>
-        <button class="pill" id="make-code" type="button">🎲 Make me a code</button>
-      </div>
-      <div id="room-active" class="hidden" style="flex-direction:column;gap:12px">
-        <div class="roomcode" id="room-code" aria-live="polite">—</div>
-        <p class="hint">Invite friends: they scan this or open the link, and the room, packs, players, names and current round are set for them. The link and QR code update every round.</p>
-        <div class="qr" id="qr-menu" role="img" aria-label="QR code that opens this room"></div>
-        <input type="text" id="invite-link" readonly aria-label="Invite link">
-        <div class="center"><button class="pill" id="copy-link">Copy link</button><button class="pill hidden" id="share-link">Share…</button><button class="pill" id="copy-code">Copy code</button><button class="pill" id="leave-room">Leave room</button></div>
-        <p class="hint" id="qr-note"></p>
-      </div>
+      <select id="my-seat" class="hidden" aria-hidden="true"></select>
+      <label for="my-name" style="font-weight:800;font-size:13px;display:flex;flex-direction:column;gap:4px">Your name<input type="text" id="my-name" maxlength="16" placeholder="e.g. Sam" autocomplete="nickname"></label>
+      <p class="hint">Whoever makes a room sets the rounds and prompt packs above. Friends join with the room code, the link, or by scanning the QR code.</p>
+      <form class="row" id="join-form" style="flex-wrap:nowrap;align-items:center">
+        <input type="text" id="join-code" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ROOM CODE" aria-label="Room code" style="text-transform:uppercase;letter-spacing:.08em">
+        <button class="btn" type="submit" style="font-size:16px;padding:10px 20px">Join</button>
+      </form>
+      <button class="pill" id="make-code" type="button">🎲 Make me a new room</button>
     </div>
   </div>
 
   <button id="start-game" class="btn" disabled>Start game ▶</button>
   <p class="status" id="status" role="status" aria-live="polite"></p>
+</section>
+
+<section id="lobby-screen" class="screen">
+  <h1>Lobby</h1>
+  <p class="tag">Share the room code, link or QR code. The host starts the game once everyone is in.</p>
+  <div class="card">
+    <div class="roomcode" id="room-code" aria-live="polite">—</div>
+    <div class="qr" id="qr-lobby" role="img" aria-label="QR code that opens this room"></div>
+    <input type="text" id="invite-link" readonly aria-label="Invite link">
+    <div class="center"><button class="pill" id="copy-link">Copy link</button><button class="pill hidden" id="share-link">Share…</button><button class="pill" id="copy-code">Copy code</button></div>
+    <p class="hint" id="qr-note"></p>
+  </div>
+  <div class="card"><h2>👥 Players <span id="lobby-count"></span></h2><ul class="plist" id="lobby-list" aria-live="polite"></ul><p class="hint" id="lobby-info"></p></div>
+  <p class="hint" id="lobby-wait"></p>
+  <div class="center"><button class="btn" id="lobby-start" disabled>Start game ▶</button><button class="pill" id="leave-room">🚪 Leave room</button></div>
+  <p class="status" role="status" aria-live="polite"></p>
 </section>
 
 <section id="game-screen" class="screen">
@@ -173,13 +183,14 @@ dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialo
   <details class="card hidden" id="invite-box" style="max-width:320px"><summary>👥 Invite more players</summary>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px"><div class="qr" id="qr-game" role="img" aria-label="QR code for this room"></div><div class="center"><button class="pill" id="copy-link2">Copy link</button></div></div></details>
   <div class="center"><button class="pill" id="end-btn">🏁 Finish game</button><button class="pill" id="home-btn">🏠 Menu</button></div>
+  <p class="status" role="status" aria-live="polite"></p>
 </section>
 
 <section id="results-screen" class="screen">
   <h1>🏆 Results</h1>
   <p class="how" id="winner-line"></p>
   <div class="results" id="results"></div>
-  <div class="center"><button id="play-again" class="btn">Play again</button><button id="go-to-menu" class="btn alt">Menu</button></div>
+  <div class="center"><button id="play-again" class="btn">Play again</button><button id="go-to-menu" class="btn alt">Menu</button><button id="results-leave" class="btn alt hidden">Leave room</button></div>
 </section>
 </main>
 
@@ -188,16 +199,15 @@ dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialo
   <li>A prompt appears. Everyone says (or writes) their funniest answer.</li>
   <li>The judge changes every round, in seat order (seat 1, then seat 2…). The judge doesn’t answer: they tap the name of the player with the best answer to give a point.</li>
   <li>Most points after the last round wins!</li></ol>
-  <h2>👥 Playing on several phones</h2>
-  <ul><li>Pick <b>Several phones</b>, enter or make a room code, and share the link or QR code.</li>
-  <li>Every phone shows the same prompt each round. Use <b>No winner → next</b> to move a phone along.</li>
-  <li>Choose which seat each phone is sitting in, so it knows when you’re the judge.</li>
-  <li>Scores live on each phone, so let one person be the scorekeeper.</li></ul>
+  <h2>🌐 Playing online</h2>
+  <ul><li>Pick <b>Online</b>, type your name, then make a room or enter a friend’s code (or scan their QR code).</li>
+  <li>Everyone waits in the lobby. The host presses <b>Start game</b>.</li>
+  <li>Every phone shows the same prompt and live scores. The judge’s phone lets them tap the winner, and the judge changes each round.</li></ul>
   <div class="center"><button class="btn" id="help-close" style="font-size:17px;padding:10px 24px">Got it!</button></div></dialog>
 
 <script>
 (() => {
-const K={theme:'qm_theme',sound:'qm_sound',players:'qm_players',rounds:'qm_rounds',packs:'qm_packs',names:'qm_names',seen:'qm_seen',room:'qm_room',seat:'qm_seat'};
+const K={theme:'qm_theme',sound:'qm_sound',players:'qm_players',rounds:'qm_rounds',packs:'qm_packs',names:'qm_names',seen:'qm_seen',room:'qm_room',seat:'qm_seat',name:'qm_name',mode:'qm_mode'};
 const FALLBACK={'Fallback':['A bad campaign slogan for a congressperson','A brand of cereal for the elderly','The next big superhero sidekick','An embarrassing thing to forget at a wedding','The worst thing to hear from your barber','The worst thing to say during a eulogy','A good man is hard to ____','A surprising new Olympic event']};
 const COLORS=['#e0405e','#1f9e86','#3b6fd1','#d98a12','#7a4fd0','#1c8aa8','#c23b8c','#5a5470'];
 const $=id=>document.getElementById(id);
@@ -205,11 +215,11 @@ const S={packs:{},players:[],scores:[],round:0,rounds:12,prompts:[],used:new Set
 let soundOn=true,lastLink='',token=0,ready=false,mySeat=1;
 const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const clamp=(v,a,b,d)=>{v=parseInt(v,10);return Number.isFinite(v)?Math.max(a,Math.min(b,v)):d};
-const setStatus=(m,i)=>{$('status').textContent=m||'';$('status').classList.toggle('info',!!i)};
+const setStatus=(m,i)=>document.querySelectorAll('.status').forEach(e=>{e.textContent=m||'';e.classList.toggle('info',!!i)});
 const blanks=t=>t.replace(/<BLANK>/gi,'________').replace(/_+/g,m=>'_'.repeat(Math.max(m.length,6)));
-const screens={menu:$('menu-screen'),game:$('game-screen'),results:$('results-screen')};
+const screens={menu:$('menu-screen'),lobby:$('lobby-screen'),game:$('game-screen'),results:$('results-screen')};
 let screen='menu';
-function show(n){screen=n;Object.entries(screens).forEach(([k,e])=>e.classList.toggle('active',k===n));window.scrollTo({top:0});refreshInvite()}
+function show(n){const same=n===screen;screen=n;Object.entries(screens).forEach(([k,e])=>e.classList.toggle('active',k===n));if(!same)window.scrollTo({top:0});refreshInvite()}
 
 /* theme + sound */
 const mq=matchMedia('(prefers-color-scheme: dark)');
@@ -303,63 +313,202 @@ const QR=(()=>{let loading=null;const ok=()=>typeof window.qrcode==='function'||
     }catch(e){box.innerHTML='';return'toolong'}
     return'unsupported';}}})();
 
-/* rooms + invite links: #room=CODE&d=packs&n=count&p=players&r=rounds&k=round&nm=names */
-function buildLink(){
-  const all=packNames(),sel=new Set(selected()),idx=all.map((n,i)=>sel.has(n)?i:-1).filter(i=>i>=0);
-  const p=new URLSearchParams({room:S.room,d:idx.join('.'),n:String(all.length),p:$('player-count').value,r:$('round-count').value});
-  if(screen==='game'&&S.round>1)p.set('k',String(S.round));
-  const nm=getNames();if(nm.some(Boolean))p.set('nm',nm.join('|'));
-  return location.href.split('#')[0]+'#'+p.toString();
+/* ===== Online play (Firebase Realtime Database) =====
+   SETUP (5 minutes, free Spark plan):
+   1. console.firebase.google.com -> Add project -> Build -> Realtime Database -> Create database.
+   2. Build -> Authentication -> Sign-in method -> enable "Anonymous".
+   3. Project settings -> Your apps -> Web (</>) -> copy the config values into FIREBASE_CONFIG below.
+   4. Realtime Database -> Rules -> paste the rules from the chat reply -> Publish.
+   Solo ("One phone") mode never touches Firebase, so it still works offline. */
+const FIREBASE_CONFIG={apiKey:'YOUR_API_KEY',authDomain:'YOUR_PROJECT.firebaseapp.com',databaseURL:'https://YOUR_PROJECT-default-rtdb.firebaseio.com',projectId:'YOUR_PROJECT',appId:'YOUR_APP_ID'};
+const MAXP=8,SETUP_MSG='Online play isn’t set up yet: paste your Firebase config into FIREBASE_CONFIG in the script (steps are in the comment above it).';
+const needsConfig=()=>String(FIREBASE_CONFIG.apiKey).startsWith('YOUR_');
+let FB=null,O=null;
+const loadScript=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Could not load '+src));document.head.appendChild(s)});
+async function fbInit(){
+  if(FB)return FB;
+  const base='https://www.gstatic.com/firebasejs/10.12.2/firebase-';
+  for(const n of['app','auth','database'])await loadScript(base+n+'-compat.js');
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const cred=await firebase.auth().signInAnonymously();
+  FB={db:firebase.database(),uid:cred.user.uid};return FB;
 }
-async function refreshInvite(){
-  if(!ready)return;
-  const inRoom=!!S.room&&ready;
-  $('room-entry').classList.toggle('hidden',inRoom);$('room-active').classList.toggle('hidden',!inRoom);
-  $('room-active').style.display=inRoom?'flex':'none';$('room-entry').style.display=inRoom?'none':'flex';
-  $('room-code').textContent=S.room||'—';
-  $('room-chip').classList.toggle('hidden',!inRoom);$('room-chip').textContent='Room '+(S.room||'');
-  $('invite-box').classList.toggle('hidden',!inRoom);
-  try{if(inRoom&&lastLink!==undefined){const base=location.pathname+location.search;history.replaceState(null,'',base+'#'+buildLink().split('#')[1])}else if(!inRoom&&location.hash)history.replaceState(null,'',location.pathname+location.search)}catch(e){}
-  if(!inRoom){lastLink='';return}
-  const link=buildLink();$('invite-link').value=link;if(link===lastLink)return;lastLink=link;
-  const t=++token;const[a,b]=await Promise.all([QR.render(link,$('qr-menu')),QR.render(link,$('qr-game'))]);if(t!==token)return;
-  $('qr-menu').classList.toggle('hidden',a!=='ok');
-  $('qr-note').textContent=a==='missing'?'Couldn’t load qrcode.js. Keep it in the same folder as this page. You can still copy the link.':a==='toolong'?'This link is too long for a QR code. Copy it instead.':a==='unsupported'?'qrcode.js loaded but its format isn’t recognised. Copy the link instead.':location.protocol==='file:'?'This page is open from a file, so other phones can’t open the link. Host it online to share.':'Scan with a phone camera, or copy the link.';
+const TS=()=>firebase.database.ServerValue.TIMESTAMP;
+const D=()=>(O&&O.data)||{},meta=()=>D().meta||{};
+const nameOf=u=>((D().players||{})[u]||{}).name||'Player';
+const isHost=()=>!!O&&meta().host===O.uid;
+const plist=()=>{const pl=D().players||{};return Object.keys(pl).map(u=>Object.assign({uid:u},pl[u])).sort((a,b)=>(a.joined||0)-(b.joined||0))};
+const scoresOf=()=>{const sc={};Object.values(D().history||{}).forEach(h=>{if(h&&h.winner)sc[h.winner]=(sc[h.winner]||0)+1});return sc};
+const upd=o=>O&&O.ref.update(o).catch(()=>setStatus('Couldn’t reach the room. Check your connection.'));
+const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<5;i++)r+=c[Math.floor(Math.random()*c.length)];return r};
+
+function detach(){if(O)O.off.forEach(f=>{try{f()}catch(e){}});O=null}
+function leaveLocal(msg){detach();S.room=null;store.set(K.room,null);lastLink='';show('menu');setStatus(msg||'',true);refreshInvite()}
+async function leaveOnline(){
+  if(!O)return;const{ref,uid}=O,d=D(),m=d.meta||{},pl=d.players||{};
+  const others=Object.keys(pl).filter(u=>u!==uid&&pl[u].online!==false);
+  try{
+    ref.child('players/'+uid+'/online').onDisconnect().cancel();
+    if(!others.length)await ref.update({meta:null,players:null,history:null});
+    else{const o={};if(m.host===uid)o['meta/host']=others[0];if(m.status==='lobby')o['players/'+uid]=null;else o['players/'+uid+'/online']=false;await ref.update(o)}
+  }catch(e){}
+  leaveLocal();
 }
-function enterRoom(code){S.room=code;store.set(K.room,code);deckCache=new Map();lastLink='';refreshInvite()}
-function leaveRoom(){S.room=null;store.set(K.room,null);lastLink='';refreshInvite()}
-function setMode(m){document.querySelector(`input[name=mode][value=${m}]`).checked=true;$('room-panel').classList.toggle('hidden',m!=='room');$('room-panel').style.display=m==='room'?'flex':'none'}
-document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{setMode(r.value);if(r.value==='solo')leaveRoom();setStatus('')});
+function attach(ref,fb,code){
+  detach();O={ref,uid:fb.uid,code,data:null,off:[],shown:0};S.room=code;
+  const h=ref.on('value',s=>{O.data=s.val();renderOnline()},()=>leaveLocal('Lost access to the room.'));
+  O.off.push(()=>ref.off('value',h));
+  const c=fb.db.ref('.info/connected'),ch=c.on('value',s=>{if(s.val()){const o=ref.child('players/'+fb.uid+'/online');o.onDisconnect().set(false);o.set(true)}});
+  O.off.push(()=>c.off('value',ch));
+}
+async function joinRoom(code,opts={}){
+  const name=($('my-name').value||'').trim().replace(/\|/g,'').slice(0,16);
+  if(!opts.rejoin&&!name){setStatus('Type your name first so the others know who you are.');$('my-name').focus();return}
+  if(needsConfig()){if(!opts.rejoin)setStatus(SETUP_MSG);return}
+  setStatus(opts.rejoin?'':'Connecting…',true);
+  try{
+    const fb=await fbInit(),ref=fb.db.ref('rooms/'+code),d=(await ref.once('value')).val(),mine=d&&d.players&&d.players[fb.uid];
+    if(opts.rejoin&&!mine)throw new Error('norejoin');
+    if(!d){
+      const sel=selected();if(!sel.length)throw new Error('nopacks');
+      await ref.set({meta:{host:fb.uid,created:TS(),rounds:clamp($('round-count').value,1,50,12),packs:sel,status:'lobby',round:1},players:{[fb.uid]:{name,online:true,joined:TS()}}});
+    }else{
+      if(opts.make)return'taken';
+      if(!mine){
+        if(!d.meta||d.meta.status!=='lobby')throw new Error('started');
+        const others=Object.values(d.players||{});if(others.length>=MAXP)throw new Error('full');
+        let nm=name,k=2;while(others.some(p=>String(p.name).toLowerCase()===nm.toLowerCase()))nm=name.slice(0,13)+' '+k++;
+        await ref.child('players/'+fb.uid).set({name:nm,online:true,joined:TS()});
+      }else await ref.child('players/'+fb.uid+'/online').set(true);
+    }
+    store.set(K.name,name||(mine&&mine.name)||'');store.set(K.room,code);attach(ref,fb,code);setStatus('');
+  }catch(e){
+    if(opts.rejoin){store.set(K.room,null);setStatus('');return}
+    console.error(e);
+    const known={started:'That game has already started. Ask the host to open a new room.',full:'That room is full ('+MAXP+' players).',nopacks:'Choose at least one prompt pack first.'}[e.message];
+    setStatus(known||(/permission/i.test(e.message)?'Firebase refused the request. Check your rules, and that Anonymous sign-in is enabled.':'Couldn’t connect. Check your internet connection and Firebase setup.'));
+  }
+}
+
+/* ----- shared drawing ----- */
+function setBubble(text){const b=$('prompt-text'),k=text;if(b.dataset.k===k)return;b.dataset.k=k;b.textContent=blanks(text);b.style.animation='none';void b.offsetWidth;b.style.animation=''}
+function drawPlayers(items,judge,canPick,fresh,pick){
+  const box=$('players');box.innerHTML='';
+  items.forEach((it,i)=>{
+    const x=document.createElement('button');x.className='pbtn'+(i===judge?' isjudge':'')+(!canPick&&i!==judge?' view':'');
+    x.style.background=COLORS[i%COLORS.length];if(fresh)x.style.animationDelay=i*50+'ms';else x.style.animation='none';
+    x.disabled=!canPick||i===judge;
+    x.setAttribute('aria-label',i===judge?it.name+' is the judge this round':(canPick?'Give a point to '+it.name+', who has '+it.score:it.name+' has '+it.score+(it.score===1?' point':' points')));
+    const a=document.createElement('span');a.className='pname';a.textContent=it.name;
+    const s=document.createElement('span');s.className='pscore';s.textContent=i===judge?'👑 Judge':it.score+(it.score===1?' point':' points');
+    x.append(a,s);if(canPick&&i!==judge)x.onclick=()=>pick(i);box.appendChild(x);
+  });
+}
+function showResults(list){
+  const r=list.slice().sort((a,b)=>b.score-a.score),top=r[0]?r[0].score:0,w=r.filter(x=>x.score===top);
+  $('winner-line').textContent=top===0?'Nobody scored. Rematch?':w.length>1?'It’s a tie: '+w.map(x=>x.name).join(' & ')+'!':w[0].name+' wins! 🎉';
+  $('results').innerHTML='';let rank=0,prev=null;
+  r.forEach((x,i)=>{if(x.score!==prev){rank=i+1;prev=x.score}
+    const d=document.createElement('div');d.className='result'+(x.score===top&&top>0?' win':'');
+    const a=document.createElement('span');a.className='rk';a.textContent='#'+rank;const n=document.createElement('span');n.className='nm';n.textContent=x.name;const s=document.createElement('span');s.textContent=x.score+(x.score===1?' point':' points');
+    d.append(a,n,s);$('results').appendChild(d)});
+}
+
+/* ----- online screens ----- */
+function renderOnline(){
+  if(!O)return;
+  const d=D();if(!d.meta){leaveLocal('The room was closed.');return}
+  S.rounds=d.meta.rounds;refreshInvite();
+  if(d.meta.status==='lobby')renderLobby();else if(d.meta.status==='playing')renderGameOnline();else renderResultsOnline();
+}
+function renderLobby(){
+  show('lobby');
+  const m=meta(),pl=plist(),host=isHost(),ul=$('lobby-list');
+  $('lobby-count').textContent='('+pl.length+'/'+MAXP+')';ul.innerHTML='';
+  pl.forEach(p=>{const li=document.createElement('li');li.className='prow'+(p.online===false?' off':'');
+    const n=document.createElement('span');n.textContent=p.name+(p.uid===O.uid?' (you)':'');
+    const t=document.createElement('span');t.className='ptag';t.textContent=(p.uid===m.host?'👑 Host':'')+(p.online===false?' offline':'');
+    li.append(n,t);ul.appendChild(li)});
+  $('lobby-info').textContent=m.rounds+' rounds · '+(m.packs||[]).join(', ');
+  const b=$('lobby-start');b.classList.toggle('hidden',!host);b.disabled=pl.filter(p=>p.online!==false).length<2;
+  $('lobby-wait').classList.toggle('hidden',host);$('lobby-wait').textContent='Waiting for '+nameOf(m.host)+' (the host) to start the game…';
+  if(host&&b.disabled)$('lobby-wait').classList.remove('hidden'),$('lobby-wait').textContent='You need at least 2 players. Share the code, link or QR code.';
+}
+function renderGameOnline(){
+  show('game');
+  const m=meta(),order=m.order||[],n=order.length;if(!n)return;
+  const round=Math.min(m.round,m.rounds),pl=D().players||{},sc=scoresOf(),hist=Object.keys(D().history||{});
+  const j=(round-1)%n,jUid=order[j],me=O.uid===jUid,away=pl[jUid]&&pl[jUid].online===false,canPick=me||(isHost()&&!!away);
+  const prompts=(m.packs||[]).flatMap(p=>S.packs[p]||[]);
+  if(!prompts.length)setStatus('Your prompts file doesn’t have the packs the host chose.');
+  const text=prompts.length?roomPrompt(O.code,round,prompts):'';
+  $('round-badge').textContent='Round '+round+' of '+m.rounds;$('progress').style.width=((round-1)/m.rounds*100)+'%';
+  setBubble(round+'|'+text);$('prompt-text').textContent=blanks(text);
+  const jl=$('judge-line');jl.textContent=me?'👑 You’re the judge this round!':'👑 Judge this round: '+nameOf(jUid);jl.classList.toggle('me',me);
+  $('how').textContent=me?'Listen to everyone’s funniest answer out loud, then tap the winner.':away&&isHost()?nameOf(jUid)+' looks offline. As host you can pick the winner or skip the round.':'Give your funniest answer out loud. '+nameOf(jUid)+' picks the winner.';
+  const fresh=O.shown!==round;O.shown=round;
+  drawPlayers(order.map(u=>({name:nameOf(u),score:sc[u]||0})),j,canPick,fresh,i=>{click();onlineAward(order[i])});
+  $('none-btn').disabled=!canPick;$('skip-btn').classList.add('hidden');
+  $('undo-btn').classList.toggle('hidden',!isHost());$('undo-btn').disabled=!hist.length;
+  $('end-btn').classList.toggle('hidden',!isHost());$('home-btn').textContent='🚪 Leave room';
+}
+function renderResultsOnline(){
+  show('results');
+  const order=meta().order||[],sc=scoresOf(),host=isHost();
+  showResults(order.map(u=>({name:nameOf(u),score:sc[u]||0})));
+  $('play-again').classList.toggle('hidden',!host);$('go-to-menu').classList.toggle('hidden',!host);$('go-to-menu').textContent='Back to lobby';
+  $('results-leave').classList.remove('hidden');
+}
+function onlineAward(uid){
+  const m=meta(),r=m.round,o={};if(!m.order||(D().history||{})['r'+r])return;
+  o['history/r'+r]={judge:O.uid,winner:uid||null};o['meta/round']=r+1;if(r+1>m.rounds)o['meta/status']='finished';upd(o);
+}
+function onlineUndo(){
+  const ks=Object.keys(D().history||{}).map(k=>+k.slice(1)).sort((a,b)=>b-a);if(!ks.length)return;
+  click();upd({['history/r'+ks[0]]:null,'meta/round':ks[0],'meta/status':'playing'});
+}
+
+/* ----- room entry (menu) ----- */
+function setMode(m){
+  document.querySelector('input[name=mode][value='+m+']').checked=true;
+  $('room-panel').classList.toggle('hidden',m!=='room');$('room-panel').style.display=m==='room'?'flex':'none';
+  document.body.classList.toggle('online',m==='room');store.set(K.mode,m);
+}
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{setMode(r.value);setStatus(r.value==='room'&&needsConfig()?SETUP_MSG:'',r.value!=='room')});
 $('join-form').onsubmit=e=>{e.preventDefault();const c=normCode($('join-code').value);
-  if(c.length<MIN_CODE){setStatus('Room codes need at least '+MIN_CODE+' letters or numbers, or press “Make me a code”.');return}
-  enterRoom(c);$('join-code').value='';setStatus('Room ready. Share the QR code or link, then press Start.',true)};
-$('make-code').onclick=()=>{const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<5;i++)c+=ch[Math.floor(Math.random()*ch.length)];enterRoom(c);setStatus('Room '+c+' made. Share the QR code or link, then press Start.',true)};
-$('leave-room').onclick=()=>{leaveRoom();setStatus('You left the room.',true)};
+  if(c.length<MIN_CODE){setStatus('Room codes need at least '+MIN_CODE+' letters or numbers, or press “Make me a new room”.');return}
+  joinRoom(c)};
+$('make-code').onclick=async()=>{if(!$('my-name').value.trim()){setStatus('Type your name first so the others know who you are.');$('my-name').focus();return}
+  for(let i=0;i<5;i++){const c=genCode(),r=await joinRoom(c,{make:true});if(r!=='taken')return}};
+$('lobby-start').onclick=()=>{const ids=plist().filter(p=>p.online!==false).map(p=>p.uid);if(ids.length<2)return;click();upd({'meta/order':ids,'meta/status':'playing','meta/round':1,history:null})};
+$('leave-room').onclick=()=>leaveOnline();$('results-leave').onclick=()=>leaveOnline();
 const copy=(text,msg)=>{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>setStatus(msg,true)).catch(()=>setStatus('Couldn’t copy. Press and hold the text to copy it.'));else setStatus('Copy isn’t available here. Select and copy it by hand.')};
 $('copy-link').onclick=()=>copy($('invite-link').value,'Invite link copied.');
 $('copy-link2').onclick=()=>copy($('invite-link').value,'Invite link copied.');
 $('copy-code').onclick=()=>S.room&&copy(S.room,'Room code copied.');
 if(navigator.share){$('share-link').classList.remove('hidden');$('share-link').onclick=()=>navigator.share({title:'QuipMaster',text:'Join room '+S.room,url:$('invite-link').value}).catch(()=>{})}
 
-function applyHash(){
-  const h=location.hash.replace(/^#/,'');if(!h||!ready)return;
-  const p=new URLSearchParams(h),code=normCode(p.get('room'));if(code.length<MIN_CODE)return;
-  const all=packNames(),w=[];
-  const pl=parseInt(p.get('p'),10);if(Number.isFinite(pl))$('player-count').value=clamp(pl,2,8,4);
-  const ro=parseInt(p.get('r'),10);if(Number.isFinite(ro))$('round-count').value=clamp(ro,1,50,12);
-  renderNames();
-  if(p.get('nm')){const arr=p.get('nm').split('|');$('names').querySelectorAll('input').forEach((x,i)=>x.value=(arr[i]||'').slice(0,16));renderSeatSelect()}
-  if(p.get('d')!==null&&p.get('d')!==''){
-    if(parseInt(p.get('n'),10)===all.length){const on=new Set(p.get('d').split('.').map(Number));$('packs').querySelectorAll('input').forEach(b=>b.checked=on.has(all.indexOf(b.value)));packChange()}
-    else w.push('your prompts file has a different number of packs, so please pick packs yourself');
-  }
-  S.startRound=clamp(p.get('k'),1,9999,1);
-  setMode('room');enterRoom(code);
-  setStatus(w.length?`Joined room ${code}, but ${w.join(' and ')}.`:`You joined room ${code}${S.startRound>1?' at round '+S.startRound:''}. Press Start to play!`,!w.length);
+/* invite link = page URL + #room=CODE; the live game state (players, round, scores) lives in Firebase */
+async function refreshInvite(){
+  if(!ready)return;
+  const inRoom=!!(O&&S.room);
+  $('room-chip').classList.toggle('hidden',!inRoom);$('invite-box').classList.toggle('hidden',!inRoom);
+  try{const base=location.pathname+location.search;if(inRoom)history.replaceState(null,'',base+'#room='+S.room);else if(location.hash)history.replaceState(null,'',base)}catch(e){}
+  if(!inRoom){lastLink='';return}
+  $('room-chip').textContent='Room '+S.room;$('room-code').textContent=S.room;
+  const link=location.href.split('#')[0]+'#room='+S.room;$('invite-link').value=link;if(link===lastLink)return;lastLink=link;
+  const t=++token,[a,b]=await Promise.all([QR.render(link,$('qr-lobby')),QR.render(link,$('qr-game'))]);if(t!==token)return;
+  $('qr-lobby').classList.toggle('hidden',a!=='ok');
+  $('qr-note').textContent=a==='missing'?'Couldn’t load qrcode.js. Keep it in the same folder as this page. You can still copy the link.':a==='toolong'?'This link is too long for a QR code. Copy it instead.':a==='unsupported'?'qrcode.js loaded but its format isn’t recognised. Copy the link instead.':location.protocol==='file:'?'This page is open from a file, so other phones can’t open the link. Host it online to share.':'Scan with a phone camera, or copy the link.';
 }
-window.onhashchange=()=>{const c=normCode(new URLSearchParams(location.hash.replace(/^#/,'')).get('room'));if(c&&c!==S.room&&screen==='menu')applyHash()};
+function applyHash(){
+  const code=normCode(new URLSearchParams(location.hash.replace(/^#/,'')).get('room')),saved=normCode(store.get(K.room,null));
+  if(code.length>=MIN_CODE){setMode('room');$('join-code').value=code;
+    if($('my-name').value.trim())joinRoom(code);else{setStatus('Room '+code+': type your name, then press Join.',true);$('my-name').focus()}}
+  else if(saved.length>=MIN_CODE&&store.get(K.mode,'solo')==='room')joinRoom(saved,{rejoin:true});
+}
 
-/* game */
+/* ===== One phone (offline) game ===== */
 function startGame(keep){
   if(!keep){
     const n=clamp($('player-count').value,2,8,4),r=clamp($('round-count').value,1,50,12);
@@ -368,66 +517,73 @@ function startGame(keep){
     S.players=Array.from({length:n},(_,i)=>{let nm=typed[i]||'Player '+(i+1);if(seen.has(nm.toLowerCase()))nm+=' ('+(i+1)+')';seen.add(nm.toLowerCase());return nm});
     S.rounds=r;S.prompts=selected().flatMap(p=>S.packs[p]);
   }
-  S.scores=S.players.map(()=>0);S.history=[];S.used=new Set();
-  S.round=(S.room&&!keep?S.startRound:1)-1;S.startRound=1;
+  S.scores=S.players.map(()=>0);S.history=[];S.used=new Set();S.round=0;
   show('game');nextRound();
 }
 function pickPrompt(){
-  if(S.room)return roomPrompt(S.room,S.round,S.prompts);
   let pool=S.prompts.filter(p=>!S.used.has(p));if(!pool.length){S.used.clear();pool=S.prompts.slice()}
   const p=pool[Math.floor(Math.random()*pool.length)];S.used.add(p);return p;
 }
+const judgeIdx=()=>(S.round-1)%S.players.length;
 function renderRound(){
-  $('round-badge').textContent=`Round ${S.round} of ${S.rounds}`;
-  $('progress').style.width=((S.round-1)/S.rounds*100)+'%';
-  $('undo-btn').disabled=!S.history.length;
-  $('skip-btn').classList.toggle('hidden',!!S.room);
-  const b=$('prompt-text');b.textContent=blanks(S.current);b.style.animation='none';void b.offsetWidth;b.style.animation='';
-  $('players').innerHTML='';
-  S.players.forEach((name,i)=>{const x=document.createElement('button');x.className='pbtn';x.style.background=COLORS[i%COLORS.length];x.style.animationDelay=i*50+'ms';
-    x.setAttribute('aria-label','Give a point to '+name+', who has '+S.scores[i]);
-    const a=document.createElement('span');a.className='pname';a.textContent=name;const s=document.createElement('span');s.className='pscore';s.textContent=S.scores[i]+(S.scores[i]===1?' point':' points');
-    x.append(a,s);x.onclick=()=>award(i);$('players').appendChild(x)});
+  $('round-badge').textContent='Round '+S.round+' of '+S.rounds;$('progress').style.width=((S.round-1)/S.rounds*100)+'%';
+  $('undo-btn').classList.remove('hidden');$('undo-btn').disabled=!S.history.length;
+  $('skip-btn').classList.remove('hidden');$('end-btn').classList.remove('hidden');$('none-btn').disabled=false;$('home-btn').textContent='🏠 Menu';
+  $('prompt-text').dataset.k='';setBubble(S.current);
+  drawPlayers(S.players.map((n,i)=>({name:n,score:S.scores[i]})),judgeIdx(),true,true,award);
   renderJudge();refreshInvite();
 }
-const judgeIdx=()=>(S.round-1)%S.players.length;
 function renderJudge(){
-  if(screen!=='game'||!S.players.length)return;
-  const j=judgeIdx(),name=S.players[j],me=!!S.room&&mySeat-1===j,el=$('judge-line');
-  el.textContent=me?'👑 You’re the judge this round!':`👑 Judge this round: ${name} (seat ${j+1})`;
-  el.classList.toggle('me',me);
-  $('how').textContent=me?'Wait for everyone to give their funniest answer, then tap the winner’s name.':`Everyone else: give your funniest answer out loud. Then ${name} taps the winner’s name${S.room?'':' (pass the phone to them!)'}.`;
-  [...$('players').children].forEach((b,i)=>{b.disabled=i===j;if(i===j){b.setAttribute('aria-label',S.players[i]+' is the judge this round');b.querySelector('.pscore').textContent='👑 Judge'}});
+  if(screen!=='game'||O||!S.players.length)return;
+  const j=judgeIdx(),name=S.players[j];
+  $('judge-line').textContent='👑 Judge this round: '+name+' (seat '+(j+1)+')';$('judge-line').classList.remove('me');
+  $('how').textContent='Everyone else: give your funniest answer out loud. Then '+name+' taps the winner’s name (pass the phone to them!).';
 }
 function nextRound(){S.round++;if(S.round>S.rounds)return endGame();S.current=pickPrompt();renderRound()}
-function award(i){if(i===judgeIdx())return;click();S.scores[i]++;S.history.push({player:i,prompt:S.current});nextRound()}
-$('none-btn').onclick=()=>{click();S.history.push({player:null,prompt:S.current});nextRound()};
-$('undo-btn').onclick=()=>{const l=S.history.pop();if(!l)return;click();if(l.player!==null)S.scores[l.player]--;S.round=Math.max(1,Math.min(S.round,S.rounds)-1);S.current=l.prompt;renderRound()};
-$('skip-btn').onclick=()=>{click();S.current=pickPrompt();renderRound()};
+function award(i){click();S.scores[i]++;S.history.push({player:i,prompt:S.current});nextRound()}
+function soloUndo(){const l=S.history.pop();if(!l)return;click();if(l.player!==null)S.scores[l.player]--;S.round=Math.max(1,Math.min(S.round,S.rounds)-1);S.current=l.prompt;renderRound()}
 function endGame(){
-  const r=S.players.map((name,i)=>({name,score:S.scores[i]})).sort((a,b)=>b.score-a.score),top=r[0].score,w=r.filter(x=>x.score===top);
-  $('winner-line').textContent=top===0?'Nobody scored. Rematch?':w.length>1?'It’s a tie: '+w.map(x=>x.name).join(' & ')+'!':w[0].name+' wins! 🎉';
-  $('results').innerHTML='';let rank=0,prev=null;
-  r.forEach((x,i)=>{if(x.score!==prev){rank=i+1;prev=x.score}
-    const d=document.createElement('div');d.className='result'+(x.score===top&&top>0?' win':'');
-    const a=document.createElement('span');a.className='rk';a.textContent='#'+rank;const n=document.createElement('span');n.className='nm';n.textContent=x.name;const s=document.createElement('span');s.textContent=x.score+(x.score===1?' point':' points');
-    d.append(a,n,s);$('results').appendChild(d)});
+  showResults(S.players.map((name,i)=>({name,score:S.scores[i]})));
+  $('play-again').classList.remove('hidden');$('go-to-menu').classList.remove('hidden');$('go-to-menu').textContent='Menu';$('results-leave').classList.add('hidden');
   show('results');
 }
-$('start-game').onclick=()=>{
-  if(document.querySelector('input[name=mode]:checked').value==='room'&&!S.room){setStatus('Enter or make a room code first, or switch to “One phone”.');return}
-  click();startGame(false)};
-$('play-again').onclick=()=>{click();S.round=0;startGame(true)};
-$('go-to-menu').onclick=()=>{click();show('menu')};
-$('home-btn').onclick=()=>{if(S.round>1&&!confirm('Go back to the menu? Scores will be lost.'))return;click();show('menu')};
-$('end-btn').onclick=()=>{if(S.round>1&&!confirm('Finish the game now and see results?'))return;click();endGame()};
+$('start-game').onclick=()=>{click();startGame(false)};
+$('none-btn').onclick=()=>{click();if(O)onlineAward(null);else{S.history.push({player:null,prompt:S.current});nextRound()}};
+$('undo-btn').onclick=()=>O?onlineUndo():soloUndo();
+$('skip-btn').onclick=()=>{click();S.current=pickPrompt();$('prompt-text').dataset.k='';renderRound()};
+$('play-again').onclick=()=>{click();if(O)upd({history:null,'meta/round':1,'meta/status':'playing'});else{S.round=0;startGame(true)}};
+$('go-to-menu').onclick=()=>{click();if(O)upd({history:null,'meta/round':1,'meta/status':'lobby'});else show('menu')};
+$('home-btn').onclick=()=>{if(O){if(confirm('Leave the room?'))leaveOnline();return}if(S.round>1&&!confirm('Go back to the menu? Scores will be lost.'))return;click();show('menu')};
+$('end-btn').onclick=()=>{if(S.round>1&&!confirm('Finish the game now and see results?'))return;click();if(O)upd({'meta/status':'finished'});else endGame()};
+
+/* depth-of-field background: far circles are small, faint, blurry and scroll slowly; near ones are bigger, sharper and scroll faster */
+(()=>{
+  const bg=document.createElement('div');bg.id='bg';bg.setAttribute('aria-hidden','true');document.body.prepend(bg);
+  const cols=['--coral','--yellow','--mint','--violet'],N=14;
+  const dots=Array.from({length:N},(_,i)=>{
+    const d=(i+Math.random())/N,size=Math.round(55+(1-d)*190),el=document.createElement('i');   // d: 0 = close, 1 = far away
+    el.style.cssText=`width:${size}px;height:${size}px;left:${(Math.random()*100).toFixed(1)}%;margin-left:${-size/2}px;background:var(${cols[i%4]});filter:blur(${(6+d*14).toFixed(1)}px);opacity:${(0.16+(1-d)*0.26).toFixed(2)}`;
+    bg.appendChild(el);
+    return{el,size,y0:Math.random(),speed:0.05+(1-d)*0.38};
+  });
+  const still=matchMedia('(prefers-reduced-motion: reduce)');
+  let cur=scrollY,raf=0;
+  function draw(){
+    const H=innerHeight,sy=still.matches?0:cur;
+    dots.forEach(o=>{const span=H+o.size*2,y=(((o.y0*span-sy*o.speed)%span)+span)%span-o.size;o.el.style.transform=`translate3d(0,${y.toFixed(1)}px,0)`});
+  }
+  function tick(){raf=0;const diff=scrollY-cur;cur=Math.abs(diff)<0.3?scrollY:cur+diff*0.14;draw();if(cur!==scrollY)raf=requestAnimationFrame(tick)}
+  const kick=()=>{if(!raf)raf=requestAnimationFrame(tick)};
+  addEventListener('scroll',kick,{passive:true});addEventListener('resize',()=>{draw()});
+  draw();
+})();
 
 /* init */
 $('player-count').value=clamp(store.get(K.players,4),2,8,4);$('round-count').value=clamp(store.get(K.rounds,12),1,50,12);
 mySeat=clamp(store.get(K.seat,1),1,8,1);
 renderNames();
 if(!store.get(K.seen,false)){store.set(K.seen,true);setTimeout(()=>{try{$('help').showModal()}catch(e){}},400)}
-const savedRoom=store.get(K.room,null);if(savedRoom&&normCode(savedRoom).length>=MIN_CODE){S.room=normCode(savedRoom);setMode('room')}else setMode('solo');
+$('my-name').value=store.get(K.name,'');setMode(store.get(K.mode,'solo')==='room'?'room':'solo');
 loadPacks();
 })();
 </script>
