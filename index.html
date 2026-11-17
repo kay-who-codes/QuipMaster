@@ -1,59 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💬 QuipMaster</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/header.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1b1336">
+<title>💬 QuipMaster</title>
+<style>
+:root{--bg:#fff4d6;--surface:#fff;--ink:#251a47;--soft:#6b5f8a;--yellow:#ffc83d;--coral:#ff5c7a;--mint:#1fb596;--violet:#6c4ff0;--dim:#f3e6bd;
+--font:ui-rounded,'Arial Rounded MT Bold','Nunito','Segoe UI',system-ui,sans-serif}
+body.dark{--bg:#1b1336;--surface:#281d4d;--ink:#fff4d6;--soft:#b3a8d6;--dim:#34285f}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+body{font-family:var(--font);color:var(--ink);min-height:100vh;text-align:center;transition:background .3s;
+background:radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--coral) 22%,transparent) 0 90px,transparent 91px),
+radial-gradient(circle at 92% 22%,color-mix(in srgb,var(--yellow) 30%,transparent) 0 130px,transparent 131px),
+radial-gradient(circle at 80% 92%,color-mix(in srgb,var(--mint) 22%,transparent) 0 110px,transparent 111px),var(--bg);background-attachment:fixed}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;max-width:760px;margin:0 auto}
+.brand{font-weight:900;font-size:22px;display:flex;align-items:center;gap:6px}
+.tools{display:flex;gap:8px;align-items:center}
+main{max-width:760px;margin:0 auto;padding:4px 16px 48px}
+.screen{display:none;flex-direction:column;align-items:center;gap:16px}.screen.active{display:flex}
+h1{font-size:clamp(40px,11vw,64px);font-weight:900;line-height:1;letter-spacing:-.02em}
+h1 span{background:var(--yellow);color:#251a47;padding:0 .2em;border-radius:16px;display:inline-block;transform:rotate(-2deg);border:3px solid var(--ink)}
+.tag{color:var(--soft);font-weight:700;max-width:420px}
+h2{font-size:18px;font-weight:900;display:flex;align-items:center;gap:8px}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--coral);color:#fff;font-size:15px;border:2px solid var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:520px}
+.step{background:var(--surface);border:3px solid var(--ink);border-radius:20px;padding:10px 6px;font-size:13px;font-weight:700;box-shadow:0 5px 0 var(--ink)}
+.step b{display:block;font-size:22px}
+.card{width:100%;max-width:520px;padding:18px;background:var(--surface);border:3px solid var(--ink);border-radius:24px;box-shadow:0 6px 0 var(--ink);text-align:left;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:13px;flex:1;min-width:130px}
+input[type=number],input[type=text]{width:100%;padding:10px 12px;font:inherit;font-weight:700;font-size:16px;border:3px solid var(--ink);border-radius:14px;background:var(--bg);color:var(--ink)}
+.hint{font-size:13px;color:var(--soft);font-weight:600}
+.packs{display:flex;flex-direction:column;gap:6px;max-height:210px;overflow-y:auto}
+.pack{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;cursor:pointer;border:2px solid transparent}
+.pack:hover{background:var(--dim)}.pack input{width:20px;height:20px;accent-color:var(--violet)}
+.pack small{display:block;color:var(--soft);font-weight:600}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}.field label{font-weight:800;font-size:13px}
+.stepper{display:flex;align-items:stretch;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--surface);box-shadow:0 4px 0 var(--ink)}
+.stepper input{border:none!important;border-radius:0!important;background:transparent!important;text-align:center;font-size:22px!important;font-weight:900!important;min-width:0;padding:8px 0!important;-moz-appearance:textfield;appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stepper:focus-within{outline:3px solid var(--coral);outline-offset:2px}.stepper input:focus-visible{outline:none}
+.step-btn{flex:none;width:54px;border:none;background:var(--yellow);color:#251a47;font:inherit;font-size:28px;font-weight:900;line-height:1;cursor:pointer;transition:background .15s,filter .1s;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.step-btn:first-child{border-right:3px solid var(--ink)}.step-btn:last-child{border-left:3px solid var(--ink)}
+.step-btn:hover:not(:disabled){background:var(--coral);color:#fff}.step-btn:active:not(:disabled){filter:brightness(.85)}
+.step-btn:disabled{opacity:.35;cursor:not-allowed}.step-btn:focus-visible{outline:3px solid var(--violet);outline-offset:-6px}
+.seatrow{display:flex;align-items:center;gap:6px}.seatrow b{min-width:1.8em;height:1.8em;display:grid;place-items:center;border-radius:50%;background:var(--violet);color:#fff;font-size:13px;flex:none}select{width:100%;padding:10px 12px;font:inherit;font-weight:700;font-size:16px;border:3px solid var(--ink);border-radius:14px;background:var(--bg);color:var(--ink)}.judge{font-weight:900;font-size:17px;background:var(--mint);color:#251a47;border:3px solid var(--ink);border-radius:999px;padding:6px 18px;box-shadow:0 4px 0 var(--ink)}.judge.me{background:var(--coral);color:#fff}.pbtn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:0 6px 0 var(--ink)!important}
+details>summary{cursor:pointer;font-weight:800;font-size:14px}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode label{display:flex;flex-direction:column;gap:2px;padding:12px;border:3px solid var(--ink);border-radius:18px;cursor:pointer;font-weight:900;background:var(--bg)}
+.mode label small{font-weight:600;color:var(--soft);font-size:12px}
+.mode input{position:absolute;opacity:0}
+.mode label:has(input:checked){background:var(--violet);color:#fff;box-shadow:0 4px 0 var(--ink)}
+.mode label:has(input:checked) small{color:#e5defc}
+.mode label:has(input:focus-visible){outline:3px solid var(--coral);outline-offset:2px}
+.btn,.pill{font:inherit;font-weight:900;cursor:pointer;border:3px solid var(--ink);color:var(--ink);transition:transform .1s,box-shadow .1s}
+.btn{padding:14px 30px;font-size:20px;border-radius:999px;background:var(--coral);color:#fff;box-shadow:0 6px 0 var(--ink)}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 0 var(--ink)}
+.btn:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:var(--surface);color:var(--ink)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.pill{padding:7px 14px;font-size:14px;border-radius:999px;background:var(--surface);box-shadow:0 3px 0 var(--ink)}
+.pill:hover:not(:disabled){background:var(--yellow);color:#251a47}.pill:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.pill:disabled{opacity:.35;cursor:not-allowed}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.status{min-height:20px;font-weight:800;font-size:14px;color:var(--coral);max-width:420px}.status.info{color:var(--soft);font-weight:600}
+.roomcode{font-size:clamp(30px,10vw,46px);font-weight:900;letter-spacing:.1em;background:var(--ink);color:var(--yellow);border-radius:18px;padding:8px 14px;text-align:center;word-break:break-all}
+.qr{width:100%;max-width:200px;margin:0 auto;padding:8px;background:#fff;border:3px solid var(--ink);border-radius:14px}
+.qr svg,.qr img,.qr canvas{display:block;width:100%;height:auto}
+.center{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hidden{display:none!important}
+.chip{font-weight:900;background:var(--violet);color:#fff;padding:5px 16px;border-radius:999px;border:3px solid var(--ink)}
+.progress{width:100%;max-width:420px;height:12px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--surface)}
+.progress i{display:block;height:100%;width:0;background:var(--mint);transition:width .3s}
+.bubble{position:relative;width:min(100%,460px);min-height:170px;display:grid;place-items:center;padding:26px 22px;background:var(--yellow);color:#251a47;border:4px solid var(--ink);border-radius:36px;box-shadow:0 8px 0 var(--ink);font-weight:900;font-size:clamp(24px,6.4vw,34px);line-height:1.2;margin-bottom:14px;animation:pop .35s cubic-bezier(.3,1.5,.5,1) backwards}
+.bubble::after{content:'';position:absolute;bottom:-26px;left:46px;width:36px;height:36px;background:var(--yellow);border:4px solid var(--ink);border-top:none;border-left:none;transform:skewY(30deg) rotate(10deg);border-radius:0 0 12px 0;z-index:-1}
+@keyframes pop{from{opacity:0;transform:scale(.88) rotate(-2deg)}}
+.how{font-weight:800;font-size:16px;max-width:440px}
+.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;width:100%;max-width:560px}
+.pbtn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px;border:3px solid var(--ink);border-radius:22px;color:#fff;cursor:pointer;box-shadow:0 6px 0 var(--ink);font:inherit;transition:transform .1s,box-shadow .1s;animation:pop .3s backwards}
+.pbtn:hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--ink)}.pbtn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.pname{font-weight:900;font-size:20px;word-break:break-word;text-shadow:0 2px 0 rgba(0,0,0,.25)}.pscore{font-weight:900;font-size:13px;background:rgba(0,0,0,.25);border-radius:999px;padding:2px 12px}
+.results{width:100%;max-width:460px;display:flex;flex-direction:column;gap:10px}
+.result{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:3px solid var(--ink);border-radius:20px;font-weight:800;text-align:left;box-shadow:0 4px 0 var(--ink)}
+.result .rk{font-size:22px;min-width:1.8em;color:var(--coral)}.result .nm{flex:1}
+.result.win{background:var(--yellow);color:#251a47}.result.win .rk{color:#251a47}
+.toggle{background:none;border:none;cursor:pointer;padding:2px}
+.track{position:relative;display:block;width:58px;height:30px;border-radius:999px;background:var(--surface);border:3px solid var(--ink)}
+.thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--yellow);border:2px solid var(--ink);transition:transform .25s}
+body.dark .thumb{transform:translateX(28px);background:var(--violet)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+dialog{margin:auto;max-width:min(92vw,460px);padding:22px;border:4px solid var(--ink);border-radius:28px;background:var(--surface);color:var(--ink);text-align:left;box-shadow:0 8px 0 var(--ink)}
+dialog::backdrop{background:rgba(27,19,54,.7)}dialog h2{margin-bottom:10px}dialog ol,dialog ul{margin:8px 0 14px 22px;display:flex;flex-direction:column;gap:6px;font-weight:600}
+</style>
 </head>
 <body>
-    <div id="header"></div>
-    <div class="container">
-        <!-- Main Menu Screen -->
-        <div id="menu-screen" class="screen active">
-            <h1>QuipMaster</h1>
-            <div class="menu-section">
-                <h3 for="player-count">Number of Players:</h3>
-                <input type="number" id="player-count" min="2" max="8" value="4">
-            </div>
-            <div class="menu-section">
-                <h3 for="round-count">Number of Rounds:</h3>
-                <input type="number" id="round-count" min="1" max="20" value="12">
-            </div>
-            <div class="menu-section">
-                <h3>Prompt Packs:</h3>
-                <div class="packs-container">
-                    <label><input type="checkbox" class="pack-checkbox" data-pack="Base Game" checked> Base Game</label>
-                    <label><input type="checkbox" class="pack-checkbox" data-pack="Game 2" checked> Game 2</label>
-                    <label><input type="checkbox" class="pack-checkbox" data-pack="Game 3" checked> Game 3</label>
-                </div>
-            </div>
-            <button id="start-game" class="btn">Start Game</button>
-        </div>
+<header>
+  <span class="brand">💬 QuipMaster</span>
+  <div class="tools">
+    <button class="pill" id="help-btn">? How to play</button>
+    <button class="pill" id="sound-btn" aria-pressed="true">🔊</button>
+    <button class="toggle" id="theme-btn" aria-pressed="false"><span class="track" aria-hidden="true"><span class="thumb"></span></span><span class="vh">Toggle light or dark mode</span></button>
+  </div>
+</header>
+<main>
+<section id="menu-screen" class="screen active">
+  <h1><span>Quip</span>Master</h1>
+  <p class="tag">A party game: a prompt appears, everyone shouts out a funny answer, one person picks the winner.</p>
+  <div class="steps" aria-label="How a round works">
+    <div class="step"><b>📖</b>Read the prompt</div><div class="step"><b>🗣️</b>Everyone answers out loud</div><div class="step"><b>👆</b>Judge taps the winner</div>
+  </div>
 
-        <!-- Game Screen -->
-        <div id="game-screen" class="screen">
-            <div class="game-header">
-                <div class="round-counter">Round <span id="current-round">1</span>/<span id="total-rounds">12</span></div>
-                <div class="prompt-display" id="prompt-text"></div>
-            </div>
-            <div class="players-container" id="players-container"></div>
-            <button id="home-button" class="btn home-btn">Home</button>
-        </div>
-
-        <!-- Results Screen -->
-        <div id="results-screen" class="screen">
-            <h1>Game Results</h1>
-            <div class="results-container" id="results-container"></div>
-            <div class="results-buttons">
-                <button id="play-again" class="btn">Play Again</button>
-                <button id="go-to-menu" class="btn">Main Menu</button>
-            </div>
-        </div>
+  <div class="card">
+    <h2><span class="num">1</span>Who’s playing?</h2>
+    <div class="row">
+      <div class="field"><label for="player-count">Players (2–8)</label><div class="stepper"><button type="button" class="step-btn" data-target="player-count" data-dir="-1" aria-label="One fewer player">−</button><input type="number" id="player-count" min="2" max="8" value="4" inputmode="numeric"><button type="button" class="step-btn" data-target="player-count" data-dir="1" aria-label="One more player">+</button></div></div>
+      <div class="field"><label for="round-count">Rounds (1–50)</label><div class="stepper"><button type="button" class="step-btn" data-target="round-count" data-dir="-1" aria-label="One fewer round">−</button><input type="number" id="round-count" min="1" max="50" value="12" inputmode="numeric"><button type="button" class="step-btn" data-target="round-count" data-dir="1" aria-label="One more round">+</button></div></div>
     </div>
+    <div><b>Seats &amp; names</b><p class="hint">Type each player’s name in seat order (optional). Seat 1 judges round 1, seat 2 judges round 2, and so on around the table.</p><div class="names" id="names"></div></div>
+  </div>
 
-    <script src="js/app.js"></script>
-    <script src="js/header.js"></script>
+  <div class="card">
+    <h2><span class="num">2</span>Pick prompt packs</h2>
+    <div class="packs" id="packs" role="group" aria-label="Prompt packs"></div>
+    <div class="center"><button class="pill" id="all-packs">Select all</button><button class="pill" id="no-packs">Select none</button></div>
+    <p class="hint" id="pack-totals" aria-live="polite"></p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>How are you playing?</h2>
+    <div class="mode" role="radiogroup" aria-label="Play mode">
+      <label><input type="radio" name="mode" value="solo" checked>📱 One phone<small>Pass it round the table</small></label>
+      <label><input type="radio" name="mode" value="room">👥 Several phones<small>Everyone sees the same prompt</small></label>
+    </div>
+    <div id="room-panel" class="hidden" style="flex-direction:column;gap:12px">
+      <label for="my-seat" style="font-weight:800;font-size:13px;display:flex;flex-direction:column;gap:4px">Which seat is this phone? (so it knows when you’re the judge)<select id="my-seat"></select></label>
+      <div id="room-entry" style="display:flex;flex-direction:column;gap:8px">
+        <p class="hint">Type any code, or make one. Everyone who uses the same code sees the same prompts in the same order.</p>
+        <form class="row" id="join-form" style="flex-wrap:nowrap">
+          <input type="text" id="join-code" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ROOM CODE" aria-label="Room code" style="text-transform:uppercase;letter-spacing:.08em">
+          <button class="pill" type="submit">Enter</button>
+        </form>
+        <button class="pill" id="make-code" type="button">🎲 Make me a code</button>
+      </div>
+      <div id="room-active" class="hidden" style="flex-direction:column;gap:12px">
+        <div class="roomcode" id="room-code" aria-live="polite">—</div>
+        <p class="hint">Invite friends: they scan this or open the link, and the room, packs, players, names and current round are set for them. The link and QR code update every round.</p>
+        <div class="qr" id="qr-menu" role="img" aria-label="QR code that opens this room"></div>
+        <input type="text" id="invite-link" readonly aria-label="Invite link">
+        <div class="center"><button class="pill" id="copy-link">Copy link</button><button class="pill hidden" id="share-link">Share…</button><button class="pill" id="copy-code">Copy code</button><button class="pill" id="leave-room">Leave room</button></div>
+        <p class="hint" id="qr-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <button id="start-game" class="btn" disabled>Start game ▶</button>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+</section>
+
+<section id="game-screen" class="screen">
+  <div class="center"><span class="chip" id="round-badge">Round 1/12</span><span class="chip hidden" id="room-chip" style="background:var(--mint);color:#251a47"></span></div>
+  <div class="progress" aria-hidden="true"><i id="progress"></i></div>
+  <p class="judge" id="judge-line" aria-live="polite"></p>
+  <div class="bubble" id="prompt-text" aria-live="polite"></div>
+  <p class="how" id="how">Everyone gives their funniest answer out loud. Then the judge taps the winner’s name.</p>
+  <div class="players" id="players"></div>
+  <div class="center">
+    <button class="pill" id="none-btn" title="Move on without giving a point">No winner → next</button>
+    <button class="pill" id="skip-btn" title="Swap this prompt for another">🔀 New prompt</button>
+    <button class="pill" id="undo-btn" disabled>↶ Undo</button>
+  </div>
+  <details class="card hidden" id="invite-box" style="max-width:320px"><summary>👥 Invite more players</summary>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px"><div class="qr" id="qr-game" role="img" aria-label="QR code for this room"></div><div class="center"><button class="pill" id="copy-link2">Copy link</button></div></div></details>
+  <div class="center"><button class="pill" id="end-btn">🏁 Finish game</button><button class="pill" id="home-btn">🏠 Menu</button></div>
+</section>
+
+<section id="results-screen" class="screen">
+  <h1>🏆 Results</h1>
+  <p class="how" id="winner-line"></p>
+  <div class="results" id="results"></div>
+  <div class="center"><button id="play-again" class="btn">Play again</button><button id="go-to-menu" class="btn alt">Menu</button></div>
+</section>
+</main>
+
+<dialog id="help"><h2>👋 How to play</h2>
+  <ol><li>Choose players, rounds and prompt packs, then press <b>Start game</b>.</li>
+  <li>A prompt appears. Everyone says (or writes) their funniest answer.</li>
+  <li>The judge changes every round, in seat order (seat 1, then seat 2…). The judge doesn’t answer: they tap the name of the player with the best answer to give a point.</li>
+  <li>Most points after the last round wins!</li></ol>
+  <h2>👥 Playing on several phones</h2>
+  <ul><li>Pick <b>Several phones</b>, enter or make a room code, and share the link or QR code.</li>
+  <li>Every phone shows the same prompt each round. Use <b>No winner → next</b> to move a phone along.</li>
+  <li>Choose which seat each phone is sitting in, so it knows when you’re the judge.</li>
+  <li>Scores live on each phone, so let one person be the scorekeeper.</li></ul>
+  <div class="center"><button class="btn" id="help-close" style="font-size:17px;padding:10px 24px">Got it!</button></div></dialog>
+
+<script>
+(() => {
+const K={theme:'qm_theme',sound:'qm_sound',players:'qm_players',rounds:'qm_rounds',packs:'qm_packs',names:'qm_names',seen:'qm_seen',room:'qm_room',seat:'qm_seat'};
+const FALLBACK={'Fallback':['A bad campaign slogan for a congressperson','A brand of cereal for the elderly','The next big superhero sidekick','An embarrassing thing to forget at a wedding','The worst thing to hear from your barber','The worst thing to say during a eulogy','A good man is hard to ____','A surprising new Olympic event']};
+const COLORS=['#e0405e','#1f9e86','#3b6fd1','#d98a12','#7a4fd0','#1c8aa8','#c23b8c','#5a5470'];
+const $=id=>document.getElementById(id);
+const S={packs:{},players:[],scores:[],round:0,rounds:12,prompts:[],used:new Set(),history:[],current:'',room:null,startRound:1};
+let soundOn=true,lastLink='',token=0,ready=false,mySeat=1;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const clamp=(v,a,b,d)=>{v=parseInt(v,10);return Number.isFinite(v)?Math.max(a,Math.min(b,v)):d};
+const setStatus=(m,i)=>{$('status').textContent=m||'';$('status').classList.toggle('info',!!i)};
+const blanks=t=>t.replace(/<BLANK>/gi,'________').replace(/_+/g,m=>'_'.repeat(Math.max(m.length,6)));
+const screens={menu:$('menu-screen'),game:$('game-screen'),results:$('results-screen')};
+let screen='menu';
+function show(n){screen=n;Object.entries(screens).forEach(([k,e])=>e.classList.toggle('active',k===n));window.scrollTo({top:0});refreshInvite()}
+
+/* theme + sound */
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const applyTheme=d=>{document.body.classList.toggle('dark',d);$('theme-btn').setAttribute('aria-pressed',String(d))};
+const st=store.get(K.theme,null);applyTheme(st?st==='dark':mq.matches);
+mq.addEventListener('change',e=>{if(!store.get(K.theme,null))applyTheme(e.matches)});
+$('theme-btn').onclick=()=>{const d=!document.body.classList.contains('dark');applyTheme(d);store.set(K.theme,d?'dark':'light')};
+soundOn=store.get(K.sound,true);const snd=new Audio('Assets/click.mp3');
+const renderSound=()=>{$('sound-btn').textContent=soundOn?'🔊':'🔇';$('sound-btn').setAttribute('aria-label',soundOn?'Sound on':'Sound off');$('sound-btn').setAttribute('aria-pressed',String(soundOn))};
+const click=()=>{if(!soundOn)return;snd.currentTime=0;snd.play().catch(()=>{})};
+$('sound-btn').onclick=()=>{soundOn=!soundOn;store.set(K.sound,soundOn);renderSound()};renderSound();
+$('help-btn').onclick=()=>$('help').showModal();$('help-close').onclick=()=>$('help').close();
+
+/* seeded random: the room code is the seed */
+function xmur3(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19)}return()=>{h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);h^=h>>>16;return h>>>0}}
+function mulberry(a){a>>>=0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const rng=s=>mulberry(xmur3(s)());
+function shuf(arr,r){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const normCode=r=>String(r||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,24);
+const MIN_CODE=3;
+let deckCache=new Map();
+function roomPrompt(code,round,prompts){
+  const base=[...new Set(prompts)].sort((a,b)=>a<b?-1:a>b?1:0),len=base.length,r=round-1,cycle=Math.floor(r/len);
+  const key=code+'|'+cycle+'|'+len;let d=deckCache.get(key);
+  if(!d){d=shuf(base,rng(code+'|prompts|'+cycle));deckCache.set(key,d)}
+  return d[r%len];
+}
+
+/* packs */
+async function loadPacks(){
+  setStatus('Loading prompts…',true);
+  try{const res=await fetch('Assets/prompts.json');if(!res.ok)throw 0;const data=await res.json();S.packs={};
+    for(const[n,l]of Object.entries(data))if(Array.isArray(l))S.packs[n]=l.filter(p=>typeof p==='string'&&p.trim());
+    if(!Object.keys(S.packs).length)throw 0;setStatus('')}
+  catch(e){S.packs=FALLBACK;setStatus('Couldn’t load Assets/prompts.json, so a few built-in prompts are being used.')}
+  renderPacks();ready=true;applyHash();refreshInvite();
+}
+const packNames=()=>Object.keys(S.packs).sort();
+const selected=()=>[...$('packs').querySelectorAll('input:checked')].map(i=>i.value);
+function renderPacks(){
+  const saved=store.get(K.packs,null);$('packs').innerHTML='';
+  packNames().forEach(n=>{const l=document.createElement('label');l.className='pack';
+    const b=document.createElement('input');b.type='checkbox';b.value=n;b.checked=saved?saved.includes(n):true;b.onchange=packChange;
+    const t=document.createElement('span');t.textContent=n;const s=document.createElement('small');s.textContent=S.packs[n].length+' prompts';t.appendChild(s);l.append(b,t);$('packs').appendChild(l)});
+  if(saved&&!selected().length)$('packs').querySelectorAll('input').forEach(b=>b.checked=true);
+  packChange();
+}
+function packChange(){
+  const sel=selected();store.set(K.packs,sel);const total=sel.reduce((n,p)=>n+S.packs[p].length,0);
+  $('pack-totals').textContent=sel.length?`${sel.length} pack${sel.length===1?'':'s'} chosen · ${total} prompts`:'Choose at least one pack to start.';
+  $('start-game').disabled=!total;refreshInvite();
+}
+const setAll=on=>{$('packs').querySelectorAll('input').forEach(b=>b.checked=on);packChange()};
+$('all-packs').onclick=()=>setAll(true);$('no-packs').onclick=()=>setAll(false);
+
+/* names + counts */
+function renderNames(){
+  const n=clamp($('player-count').value,2,8,4),saved=store.get(K.names,[]),cur=[...$('names').querySelectorAll('input')].map(i=>i.value);$('names').innerHTML='';
+  for(let i=0;i<n;i++){const row=document.createElement('div');row.className='seatrow';const num=document.createElement('b');num.textContent=i+1;num.setAttribute('aria-hidden','true');
+    const x=document.createElement('input');x.type='text';x.maxLength=16;x.placeholder='Player '+(i+1);x.setAttribute('aria-label','Name for seat '+(i+1));
+    x.value=cur[i]!==undefined?cur[i]:(saved[i]||'');
+    x.oninput=()=>{x.value=x.value.replace(/\|/g,'');store.set(K.names,[...$('names').querySelectorAll('input')].map(q=>q.value));renderSeatSelect();refreshInvite()};row.append(num,x);$('names').appendChild(row)}
+  renderSeatSelect();syncSteppers();
+}
+function seatName(i){const e=$('names').querySelectorAll('input')[i];return(e&&e.value.trim())||'Player '+(i+1)}
+function renderSeatSelect(){const n=clamp($('player-count').value,2,8,4),sel=$('my-seat');mySeat=Math.max(1,Math.min(n,mySeat));sel.innerHTML='';
+  for(let i=0;i<n;i++){const o=document.createElement('option');o.value=i+1;o.textContent='Seat '+(i+1)+' · '+seatName(i);sel.appendChild(o)}sel.value=String(mySeat)}
+$('my-seat').onchange=()=>{mySeat=clamp($('my-seat').value,1,8,1);store.set(K.seat,mySeat);renderJudge()};
+function syncSteppers(){document.querySelectorAll('.step-btn').forEach(b=>{const i=$(b.dataset.target),v=parseInt(i.value,10),d=+b.dataset.dir;b.disabled=Number.isFinite(v)&&(d<0?v<=+i.min:v>=+i.max)})}
+document.querySelectorAll('.step-btn').forEach(b=>{
+  const go=()=>{const i=$(b.dataset.target),mn=+i.min,mx=+i.max;let v=parseInt(i.value,10);if(!Number.isFinite(v))v=mn;const n=Math.max(mn,Math.min(mx,v+ +b.dataset.dir));if(n!==v||String(n)!==i.value){i.value=n;i.dispatchEvent(new Event('change'))}syncSteppers()};
+  let t=null,r=null;const stop=()=>{clearTimeout(t);clearInterval(r)};
+  b.addEventListener('click',e=>{if(e.detail===0)go()});          // keyboard activation
+  b.addEventListener('pointerdown',e=>{if(b.disabled)return;e.preventDefault();go();t=setTimeout(()=>{r=setInterval(()=>{go();if(b.disabled)stop()},110)},420)}); // tap, or press and hold to repeat
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop));
+});
+['player-count','round-count'].forEach(id=>$(id).addEventListener('input',syncSteppers));
+const getNames=()=>[...$('names').querySelectorAll('input')].map(i=>i.value.trim());
+$('player-count').onchange=()=>{$('player-count').value=clamp($('player-count').value,2,8,4);renderNames();refreshInvite()};
+$('round-count').onchange=()=>{$('round-count').value=clamp($('round-count').value,1,50,12);refreshInvite()};
+
+/* QR (loaded from qrcode.js beside this file) */
+const QR=(()=>{let loading=null;const ok=()=>typeof window.qrcode==='function'||typeof window.QRCode!=='undefined';
+  const load=()=>ok()?Promise.resolve(true):(loading||(loading=new Promise(res=>{const s=document.createElement('script');s.src='qrcode.js';s.onload=()=>res(ok());s.onerror=()=>{loading=null;res(false)};document.head.appendChild(s)})));
+  return{async render(text,box){
+    if(!(await load()))return'missing';box.innerHTML='';
+    try{
+      if(typeof window.qrcode==='function'){const q=window.qrcode(0,'M');q.addData(text);q.make();box.innerHTML=q.createSvgTag?q.createSvgTag({cellSize:4,margin:0,scalable:true}):q.createImgTag(4,0);return'ok'}
+      if(window.QRCode&&typeof window.QRCode.toString==='function'){box.innerHTML=await new Promise((a,b)=>window.QRCode.toString(text,{type:'svg',margin:0,errorCorrectionLevel:'M'},(e,s)=>e?b(e):a(s)));return'ok'}
+      if(typeof window.QRCode==='function'){const l=window.QRCode.CorrectLevel;new window.QRCode(box,{text,width:256,height:256,correctLevel:l?l.M:undefined});return'ok'}
+    }catch(e){box.innerHTML='';return'toolong'}
+    return'unsupported';}}})();
+
+/* rooms + invite links: #room=CODE&d=packs&n=count&p=players&r=rounds&k=round&nm=names */
+function buildLink(){
+  const all=packNames(),sel=new Set(selected()),idx=all.map((n,i)=>sel.has(n)?i:-1).filter(i=>i>=0);
+  const p=new URLSearchParams({room:S.room,d:idx.join('.'),n:String(all.length),p:$('player-count').value,r:$('round-count').value});
+  if(screen==='game'&&S.round>1)p.set('k',String(S.round));
+  const nm=getNames();if(nm.some(Boolean))p.set('nm',nm.join('|'));
+  return location.href.split('#')[0]+'#'+p.toString();
+}
+async function refreshInvite(){
+  if(!ready)return;
+  const inRoom=!!S.room&&ready;
+  $('room-entry').classList.toggle('hidden',inRoom);$('room-active').classList.toggle('hidden',!inRoom);
+  $('room-active').style.display=inRoom?'flex':'none';$('room-entry').style.display=inRoom?'none':'flex';
+  $('room-code').textContent=S.room||'—';
+  $('room-chip').classList.toggle('hidden',!inRoom);$('room-chip').textContent='Room '+(S.room||'');
+  $('invite-box').classList.toggle('hidden',!inRoom);
+  try{if(inRoom&&lastLink!==undefined){const base=location.pathname+location.search;history.replaceState(null,'',base+'#'+buildLink().split('#')[1])}else if(!inRoom&&location.hash)history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  if(!inRoom){lastLink='';return}
+  const link=buildLink();$('invite-link').value=link;if(link===lastLink)return;lastLink=link;
+  const t=++token;const[a,b]=await Promise.all([QR.render(link,$('qr-menu')),QR.render(link,$('qr-game'))]);if(t!==token)return;
+  $('qr-menu').classList.toggle('hidden',a!=='ok');
+  $('qr-note').textContent=a==='missing'?'Couldn’t load qrcode.js. Keep it in the same folder as this page. You can still copy the link.':a==='toolong'?'This link is too long for a QR code. Copy it instead.':a==='unsupported'?'qrcode.js loaded but its format isn’t recognised. Copy the link instead.':location.protocol==='file:'?'This page is open from a file, so other phones can’t open the link. Host it online to share.':'Scan with a phone camera, or copy the link.';
+}
+function enterRoom(code){S.room=code;store.set(K.room,code);deckCache=new Map();lastLink='';refreshInvite()}
+function leaveRoom(){S.room=null;store.set(K.room,null);lastLink='';refreshInvite()}
+function setMode(m){document.querySelector(`input[name=mode][value=${m}]`).checked=true;$('room-panel').classList.toggle('hidden',m!=='room');$('room-panel').style.display=m==='room'?'flex':'none'}
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{setMode(r.value);if(r.value==='solo')leaveRoom();setStatus('')});
+$('join-form').onsubmit=e=>{e.preventDefault();const c=normCode($('join-code').value);
+  if(c.length<MIN_CODE){setStatus('Room codes need at least '+MIN_CODE+' letters or numbers, or press “Make me a code”.');return}
+  enterRoom(c);$('join-code').value='';setStatus('Room ready. Share the QR code or link, then press Start.',true)};
+$('make-code').onclick=()=>{const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<5;i++)c+=ch[Math.floor(Math.random()*ch.length)];enterRoom(c);setStatus('Room '+c+' made. Share the QR code or link, then press Start.',true)};
+$('leave-room').onclick=()=>{leaveRoom();setStatus('You left the room.',true)};
+const copy=(text,msg)=>{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>setStatus(msg,true)).catch(()=>setStatus('Couldn’t copy. Press and hold the text to copy it.'));else setStatus('Copy isn’t available here. Select and copy it by hand.')};
+$('copy-link').onclick=()=>copy($('invite-link').value,'Invite link copied.');
+$('copy-link2').onclick=()=>copy($('invite-link').value,'Invite link copied.');
+$('copy-code').onclick=()=>S.room&&copy(S.room,'Room code copied.');
+if(navigator.share){$('share-link').classList.remove('hidden');$('share-link').onclick=()=>navigator.share({title:'QuipMaster',text:'Join room '+S.room,url:$('invite-link').value}).catch(()=>{})}
+
+function applyHash(){
+  const h=location.hash.replace(/^#/,'');if(!h||!ready)return;
+  const p=new URLSearchParams(h),code=normCode(p.get('room'));if(code.length<MIN_CODE)return;
+  const all=packNames(),w=[];
+  const pl=parseInt(p.get('p'),10);if(Number.isFinite(pl))$('player-count').value=clamp(pl,2,8,4);
+  const ro=parseInt(p.get('r'),10);if(Number.isFinite(ro))$('round-count').value=clamp(ro,1,50,12);
+  renderNames();
+  if(p.get('nm')){const arr=p.get('nm').split('|');$('names').querySelectorAll('input').forEach((x,i)=>x.value=(arr[i]||'').slice(0,16));renderSeatSelect()}
+  if(p.get('d')!==null&&p.get('d')!==''){
+    if(parseInt(p.get('n'),10)===all.length){const on=new Set(p.get('d').split('.').map(Number));$('packs').querySelectorAll('input').forEach(b=>b.checked=on.has(all.indexOf(b.value)));packChange()}
+    else w.push('your prompts file has a different number of packs, so please pick packs yourself');
+  }
+  S.startRound=clamp(p.get('k'),1,9999,1);
+  setMode('room');enterRoom(code);
+  setStatus(w.length?`Joined room ${code}, but ${w.join(' and ')}.`:`You joined room ${code}${S.startRound>1?' at round '+S.startRound:''}. Press Start to play!`,!w.length);
+}
+window.onhashchange=()=>{const c=normCode(new URLSearchParams(location.hash.replace(/^#/,'')).get('room'));if(c&&c!==S.room&&screen==='menu')applyHash()};
+
+/* game */
+function startGame(keep){
+  if(!keep){
+    const n=clamp($('player-count').value,2,8,4),r=clamp($('round-count').value,1,50,12);
+    $('player-count').value=n;$('round-count').value=r;store.set(K.players,n);store.set(K.rounds,r);
+    const typed=getNames(),seen=new Set();
+    S.players=Array.from({length:n},(_,i)=>{let nm=typed[i]||'Player '+(i+1);if(seen.has(nm.toLowerCase()))nm+=' ('+(i+1)+')';seen.add(nm.toLowerCase());return nm});
+    S.rounds=r;S.prompts=selected().flatMap(p=>S.packs[p]);
+  }
+  S.scores=S.players.map(()=>0);S.history=[];S.used=new Set();
+  S.round=(S.room&&!keep?S.startRound:1)-1;S.startRound=1;
+  show('game');nextRound();
+}
+function pickPrompt(){
+  if(S.room)return roomPrompt(S.room,S.round,S.prompts);
+  let pool=S.prompts.filter(p=>!S.used.has(p));if(!pool.length){S.used.clear();pool=S.prompts.slice()}
+  const p=pool[Math.floor(Math.random()*pool.length)];S.used.add(p);return p;
+}
+function renderRound(){
+  $('round-badge').textContent=`Round ${S.round} of ${S.rounds}`;
+  $('progress').style.width=((S.round-1)/S.rounds*100)+'%';
+  $('undo-btn').disabled=!S.history.length;
+  $('skip-btn').classList.toggle('hidden',!!S.room);
+  const b=$('prompt-text');b.textContent=blanks(S.current);b.style.animation='none';void b.offsetWidth;b.style.animation='';
+  $('players').innerHTML='';
+  S.players.forEach((name,i)=>{const x=document.createElement('button');x.className='pbtn';x.style.background=COLORS[i%COLORS.length];x.style.animationDelay=i*50+'ms';
+    x.setAttribute('aria-label','Give a point to '+name+', who has '+S.scores[i]);
+    const a=document.createElement('span');a.className='pname';a.textContent=name;const s=document.createElement('span');s.className='pscore';s.textContent=S.scores[i]+(S.scores[i]===1?' point':' points');
+    x.append(a,s);x.onclick=()=>award(i);$('players').appendChild(x)});
+  renderJudge();refreshInvite();
+}
+const judgeIdx=()=>(S.round-1)%S.players.length;
+function renderJudge(){
+  if(screen!=='game'||!S.players.length)return;
+  const j=judgeIdx(),name=S.players[j],me=!!S.room&&mySeat-1===j,el=$('judge-line');
+  el.textContent=me?'👑 You’re the judge this round!':`👑 Judge this round: ${name} (seat ${j+1})`;
+  el.classList.toggle('me',me);
+  $('how').textContent=me?'Wait for everyone to give their funniest answer, then tap the winner’s name.':`Everyone else: give your funniest answer out loud. Then ${name} taps the winner’s name${S.room?'':' (pass the phone to them!)'}.`;
+  [...$('players').children].forEach((b,i)=>{b.disabled=i===j;if(i===j){b.setAttribute('aria-label',S.players[i]+' is the judge this round');b.querySelector('.pscore').textContent='👑 Judge'}});
+}
+function nextRound(){S.round++;if(S.round>S.rounds)return endGame();S.current=pickPrompt();renderRound()}
+function award(i){if(i===judgeIdx())return;click();S.scores[i]++;S.history.push({player:i,prompt:S.current});nextRound()}
+$('none-btn').onclick=()=>{click();S.history.push({player:null,prompt:S.current});nextRound()};
+$('undo-btn').onclick=()=>{const l=S.history.pop();if(!l)return;click();if(l.player!==null)S.scores[l.player]--;S.round=Math.max(1,Math.min(S.round,S.rounds)-1);S.current=l.prompt;renderRound()};
+$('skip-btn').onclick=()=>{click();S.current=pickPrompt();renderRound()};
+function endGame(){
+  const r=S.players.map((name,i)=>({name,score:S.scores[i]})).sort((a,b)=>b.score-a.score),top=r[0].score,w=r.filter(x=>x.score===top);
+  $('winner-line').textContent=top===0?'Nobody scored. Rematch?':w.length>1?'It’s a tie: '+w.map(x=>x.name).join(' & ')+'!':w[0].name+' wins! 🎉';
+  $('results').innerHTML='';let rank=0,prev=null;
+  r.forEach((x,i)=>{if(x.score!==prev){rank=i+1;prev=x.score}
+    const d=document.createElement('div');d.className='result'+(x.score===top&&top>0?' win':'');
+    const a=document.createElement('span');a.className='rk';a.textContent='#'+rank;const n=document.createElement('span');n.className='nm';n.textContent=x.name;const s=document.createElement('span');s.textContent=x.score+(x.score===1?' point':' points');
+    d.append(a,n,s);$('results').appendChild(d)});
+  show('results');
+}
+$('start-game').onclick=()=>{
+  if(document.querySelector('input[name=mode]:checked').value==='room'&&!S.room){setStatus('Enter or make a room code first, or switch to “One phone”.');return}
+  click();startGame(false)};
+$('play-again').onclick=()=>{click();S.round=0;startGame(true)};
+$('go-to-menu').onclick=()=>{click();show('menu')};
+$('home-btn').onclick=()=>{if(S.round>1&&!confirm('Go back to the menu? Scores will be lost.'))return;click();show('menu')};
+$('end-btn').onclick=()=>{if(S.round>1&&!confirm('Finish the game now and see results?'))return;click();endGame()};
+
+/* init */
+$('player-count').value=clamp(store.get(K.players,4),2,8,4);$('round-count').value=clamp(store.get(K.rounds,12),1,50,12);
+mySeat=clamp(store.get(K.seat,1),1,8,1);
+renderNames();
+if(!store.get(K.seen,false)){store.set(K.seen,true);setTimeout(()=>{try{$('help').showModal()}catch(e){}},400)}
+const savedRoom=store.get(K.room,null);if(savedRoom&&normCode(savedRoom).length>=MIN_CODE){S.room=normCode(savedRoom);setMode('room')}else setMode('solo');
+loadPacks();
+})();
+</script>
 </body>
 </html>
